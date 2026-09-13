@@ -1,6 +1,7 @@
 <?php
 
 require_once "conexao.php";
+require_once "jwt.php";
 
 $dados = json_decode(file_get_contents("php://input"), true);
 
@@ -36,9 +37,12 @@ if (!password_verify($senha, $usuario["Senha"])) {
     exit;
 }
 
+$token = gerar_token($usuario["Id"]);
+
 echo json_encode([
     "sucesso" => true,
     "mensagem" => "Login realizado com sucesso.",
+    "token" => $token,
     "usuario" => [
         "id" => $usuario["Id"],
         "nome" => $usuario["Nome"],
