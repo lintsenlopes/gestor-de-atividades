@@ -31,7 +31,7 @@ $stmt = $pdo->prepare($sql);
 try {
 
     $stmt->execute([
-    ":status" => "concluída",
+    ":status" => "Concluída",
     ":id" => $id
 ]);
 
