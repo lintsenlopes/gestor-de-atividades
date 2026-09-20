@@ -10,6 +10,16 @@ $data_nascimento = $dados["data_nascimento"];
 $login = $dados["login"];
 $senha = $dados["senha"];
 
+if (strlen($senha) < 8 || strlen($senha) > 64){
+    http_response_code(400);
+    echo json_encode([
+        "sucesso" => false,
+        "mensagem" => "A senha deve ter entre 8 e 64
+         caracteres."
+    ]);
+    exit;
+}
+
 $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
 
 $sql = "INSERT INTO usuarios
@@ -29,6 +39,7 @@ try {
         ":senha" => $senha_hash
     ]);
 
+    http_response_code(201);
     echo json_encode([
         "sucesso" => true,
         "mensagem" => "Usuário cadastrado com sucesso."
@@ -36,8 +47,17 @@ try {
 
 } catch (PDOException $e) {
 
-    echo json_encode([
-        "sucesso" => false,
-        "mensagem" => "Erro ao cadastrar usuário."
-    ]);
+    if ($e->getCode() == 23000) {
+        http_response_code(409);
+        echo json_encode([
+            "sucesso" => false,
+            "mensagem" => "Esse login já está em uso. Escolha outro."
+        ]);
+    } else {
+        http_response_code(400);
+        echo json_encode([
+            "sucesso" => false,
+            "mensagem" => "Erro ao cadastrar usuário."
+        ]);
+    }
 }

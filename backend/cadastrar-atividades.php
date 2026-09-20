@@ -20,6 +20,15 @@ if (!$titulo || !$data_conclusao){
     ]);
     exit;
 }
+$data_valida = DateTime::createFromFormat("Y-m-d", $data_conclusao);
+if (!$data_valida){
+    http_response_code(400);
+    echo json_encode([
+        "sucesso" => false,
+        "mensagem" => "Data de conclusão inválida. Use o formato AAAA-MM-DD."
+    ]);
+    exit;
+}
 $sql = "INSERT INTO atividades
         (Usuario_Id, Titulo, Descricao, Data_Criacao, Data_Conclusao, Status)
         VALUES
