@@ -280,76 +280,148 @@ if (listaAtividades) {
 
 
 
+
+
 const loginForm = document.getElementById("loginForm");
 
 if (loginForm) {
-  loginForm.addEventListener("submit", function (event) {
+  loginForm.addEventListener("submit", async function (event) {
     event.preventDefault();
 
-    const login = document.getElementById("login").value;
-
+    const login = document.getElementById("login").value.trim();
     const senha = document.getElementById("senha").value;
-
-    if (
-      nome === "" ||
-      sobrenome === "" ||
-      dataNascimento === "" ||
-      login === ""
-    ) {
-      cadastroMessage.textContent = "Preencha todos os campos.";
-
-      return;
-    }
-
     const loginMessage = document.getElementById("loginMessage");
+    const botaoEntrar = loginForm.querySelector('button[type="submit"]');
 
-    if (login.trim() === "" || senha.trim() === "") {
+    loginMessage.textContent = "";
+
+    if (login === "" || senha.trim() === "") {
       loginMessage.textContent = "Preencha todos os campos.";
-
       return;
     }
 
-    loginMessage.textContent = "Dados preenchidos corretamente.";
+    botaoEntrar.disabled = true;
+    botaoEntrar.textContent = "Entrando...";
+
+    try {
+      const resposta = await fetch("php/login.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          login: login,
+          senha: senha
+        })
+      });
+
+      const dados = await resposta.json();
+
+      if (!resposta.ok || dados.sucesso !== true) {
+        loginMessage.textContent =
+          dados.mensagem || "Usuário ou senha incorretos.";
+        return;
+      }
+
+      loginMessage.textContent = dados.mensagem;
+
+      window.location.href = "principal.html";
+
+    } catch (erro) {
+      loginMessage.textContent =
+        "Erro ao conectar com o servidor. Tente novamente.";
+      console.error("Erro no login:", erro);
+
+    } finally {
+      botaoEntrar.disabled = false;
+      botaoEntrar.textContent = "Entrar";
+    }
   });
-}
+} 
+
 
 
 
 const cadastroForm = document.getElementById("cadastroForm");
 
 if (cadastroForm) {
-  cadastroForm.addEventListener("submit", function (event) {
+  cadastroForm.addEventListener("submit", async function (event) {
     event.preventDefault();
 
+    const nome = document.getElementById("nome").value.trim();
+    const sobrenome = document.getElementById("sobrenome").value.trim();
+    const dataNascimento = document.getElementById("dataNascimento").value;
+    const login = document.getElementById("login").value.trim();
     const senha = document.getElementById("senha").value;
-
     const confirmarSenha = document.getElementById("confirmarSenha").value;
 
     const cadastroMessage = document.getElementById("cadastroMessage");
+    const botaoCadastrar = cadastroForm.querySelector('button[type="submit"]');
 
-    const nome = document.getElementById("nome").value.trim();
+    cadastroMessage.textContent = "";
 
-    const sobrenome = document.getElementById("sobrenome").value.trim();
-
-    const dataNascimento = document.getElementById("dataNascimento").value;
-
-    const login = document.getElementById("login").value.trim();
-
-    
+    if (
+      nome === "" ||
+      sobrenome === "" ||
+      dataNascimento === "" ||
+      login === "" ||
+      senha.trim() === "" ||
+      confirmarSenha.trim() === ""
+    ) {
+      cadastroMessage.textContent = "Preencha todos os campos.";
+      return;
+    }
 
     if (senha !== confirmarSenha) {
       cadastroMessage.textContent = "As senhas não são iguais.";
-
       return;
     }
 
     if (senha.length < 6) {
-      cadastroMessage.textContent = "A senha deve ter pelo menos 6 caracteres.";
-
+      cadastroMessage.textContent =
+        "A senha deve ter pelo menos 6 caracteres.";
       return;
     }
 
-    cadastroMessage.textContent =
-      "Cadastro validado. Aguardando conexão com o servidor.";
+    botaoCadastrar.disabled = true;
+    botaoCadastrar.textContent = "Cadastrando...";
+
+    try {
+      const resposta = await fetch("php/cadastrar.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          nome: nome,
+          sobrenome: sobrenome,
+          data_nascimento: dataNascimento,
+          login: login,
+          senha: senha
+        })
+      });
+
+      const dados = await resposta.json();
+
+      if (!resposta.ok || dados.sucesso !== true) {
+        cadastroMessage.textContent =
+          dados.mensagem || "Não foi possível realizar o cadastro.";
+        return;
+      }
+
+      cadastroMessage.textContent =
+        dados.mensagem || "Usuário cadastrado com sucesso.";
+
+      cadastroForm.reset();
+
+    } catch (erro) {
+      cadastroMessage.textContent =
+        "Erro ao conectar com o servidor. Tente novamente.";
+      console.error("Erro no cadastro:", erro);
+
+    } finally {
+      botaoCadastrar.disabled = false;
+      botaoCadastrar.textContent = "Cadastrar";
+    }
   });
-}
+} 
