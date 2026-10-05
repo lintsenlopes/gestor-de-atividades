@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 08/09/2026 às 21:32
+-- Tempo de geração: 24/09/2026 às 21:03
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -44,7 +44,22 @@ CREATE TABLE `atividades` (
 INSERT INTO `atividades` (`Id`, `Usuario_Id`, `Titulo`, `Descricao`, `Data_Criacao`, `Data_Conclusao`, `Status`) VALUES
 (1, 1, 'Entregar trabalho php', 'Finalizar e entregar o trabalho do seminário', '2026-09-07 21:13:47', '2026-09-11 18:00:00', 'Em aberto'),
 (2, 1, 'Estudar banco de dados', 'Revisar MySQL e relacionamentos entre tabelas', '2026-09-01 16:19:43', '2026-09-05 16:19:43', 'Em aberto'),
-(3, 4, 'Estudar PHP e MySQL', 'Revisar conceitos de PHP para o seminário', '2026-09-08 21:21:35', '2026-09-15 16:21:35', 'Em aberto');
+(3, 4, 'Estudar PHP e MySQL', 'Revisar conceitos de PHP para o seminário', '2026-09-08 21:21:35', '2026-09-15 16:21:35', 'Em aberto'),
+(5, 4, 'Fazer apresentação', 'Preparar os slides do seminário', '2026-09-08 17:12:17', '2026-09-10 18:00:00', 'Em aberto'),
+(6, 4, 'Fazer apresentação', 'Preparar os slides do seminário', '2026-09-08 19:21:16', '2026-09-10 18:00:00', 'Em aberto'),
+(7, 4, 'Fazer apresentação', 'Preparar os slides do seminário', '2026-09-08 19:21:43', '2026-09-10 18:00:00', 'Em aberto'),
+(8, 1, 'Preparar apresentação', 'Montar os slides para a apresentação do seminário.', '2026-09-20 10:00:00', '2026-10-05 18:00:00', 'Em aberto'),
+(9, 1, 'Revisar código PHP', 'Revisar os arquivos PHP e verificar possíveis erros na aplicação.', '2026-09-18 14:30:00', '2026-09-22 18:00:00', 'concluída'),
+(10, 1, 'Enviar documentação', 'Organizar e enviar a documentação final do projeto.', '2026-09-21 09:00:00', '2026-09-23 18:00:00', 'Em aberto'),
+(11, 4, 'Estudar AJAX', 'Revisar requisições GET e POST e comunicação entre frontend e backend.', '2026-09-20 13:00:00', '2026-10-01 18:00:00', 'Em aberto'),
+(12, 4, 'Testar login', 'Verificar login correto, senha incorreta e usuário inexistente.', '2026-09-21 15:00:00', '2026-09-23 18:00:00', 'concluída'),
+(13, 4, 'Corrigir atividade atrasada', 'Verificar uma atividade que passou da data de conclusão e definir uma nova data.', '2026-09-22 11:00:00', '2026-09-23 18:00:00', 'Em aberto'),
+(14, 8, 'Criar formulário de cadastro', 'Desenvolver formulário para cadastro de novos usuários.', '2026-09-23 08:00:00', '2026-09-30 18:00:00', 'Em aberto'),
+(15, 8, 'Testar banco de dados', 'Verificar se os registros estão sendo inseridos e consultados corretamente.', '2026-09-22 10:00:00', '2026-09-25 18:00:00', 'Em aberto'),
+(16, 8, 'Configurar ambiente', 'Configurar XAMPP e preparar o ambiente para desenvolvimento.', '2026-09-15 09:00:00', '2026-09-18 18:00:00', 'concluída'),
+(17, 9, 'Implementar exclusão', 'Implementar a funcionalidade de exclusão de atividades.', '2026-09-23 09:30:00', '2026-10-03 18:00:00', 'Em aberto'),
+(18, 9, 'Implementar edição', 'Implementar a funcionalidade para editar título, descrição e data de conclusão.', '2026-09-22 14:00:00', '2026-09-28 18:00:00', 'Em aberto'),
+(19, 10, 'Finalizar documentação', 'Finalizar a documentação das funcionalidades do sistema.', '2026-09-10 10:00:00', '2026-09-19 18:00:00', 'concluída');
 
 -- --------------------------------------------------------
 
@@ -67,7 +82,12 @@ CREATE TABLE `usuarios` (
 
 INSERT INTO `usuarios` (`Id`, `Nome`, `Sobrenome`, `Data_Nascimento`, `Login`, `Senha`) VALUES
 (1, 'Luisa', 'Leite', '2000-10-27', 'luisa', 'teste123'),
-(4, 'Thais', 'Bettin', '1997-11-11', 'thaisbettin', 'teste123');
+(4, 'Thais', 'Bettin', '1997-11-11', 'thaisbettin', 'teste123'),
+(6, 'Maria', 'Teste', '2000-05-10', 'mariateste', '$2y$10$E3GqzL/tcSd6nXN9iXGuYeSR9eAUvPb0B.KMiMRA0w8m5MWQqjk8i'),
+(8, 'Mariana', 'Souza', '1999-04-12', 'mariana.souza', 'teste123'),
+(9, 'Gabriel', 'Mendes', '2001-08-25', 'gabriel.mendes', 'teste123'),
+(10, 'Beatriz', 'Ramos', '1998-12-03', 'beatriz.ramos', 'teste123'),
+(11, 'Lucas', 'Martins', '2000-06-19', 'lucas.martins', 'teste123');
 
 --
 -- Índices para tabelas despejadas
@@ -95,13 +115,13 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de tabela `atividades`
 --
 ALTER TABLE `atividades`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT de tabela `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- Restrições para tabelas despejadas
