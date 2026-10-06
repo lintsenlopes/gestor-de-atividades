@@ -1,16 +1,16 @@
 <?php
 function acao_cadastrar_usuario() {
     global $pdo;
-    $dados = json_decode(file_get_contents("php://input"), true);
-    $nome = $dados["nome"];
-    $sobrenome = $dados["sobrenome"];
-    $data_nascimento = $dados["data_nascimento"];
-    $login = $dados["login"];
-    $senha = $dados["senha"];
+    //$dados = json_decode(file_get_contents("php://input"), true);
+    $nome = $_POST["nome"];
+    $sobrenome = $_POST["sobrenome"];
+    $data_nascimento = $_POST["data_nascimento"];
+    $login = $_POST["login"];
+    $senha = $_POST["senha"];
 
-    if (strlen($senha) < 8 || strlen($senha) > 64){
+    if (strlen($senha) < 6 || strlen($senha) > 64){
         http_response_code(400);
-        echo json_encode(["sucesso" => false, "mensagem" => "A senha deve ter entre 8 e 64 caracteres."]);
+        echo json_encode(["sucesso" => false, "mensagem" => "A senha deve ter entre  e 64 caracteres."]);
         return;
     }
 

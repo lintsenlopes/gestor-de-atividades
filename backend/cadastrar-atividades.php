@@ -2,11 +2,10 @@
 function acao_criar_atividade() {
     global $pdo;
     require_once "autenticacao.php";
-    $dados = json_decode(file_get_contents("php://input"), true);
     $usuario_id = exigir_autenticacao();
-    $titulo = $dados["titulo"];
-    $descricao = $dados["descricao"];
-    $data_conclusao = $dados["data_conclusao"];
+    $titulo = $_POST["titulo"] ?? null;
+    $descricao = $_POST["descricao"] ?? null;
+    $data_conclusao = $_POST["data_conclusao"] ?? null;
 
     if (!$titulo || !$data_conclusao){
         http_response_code(400);
