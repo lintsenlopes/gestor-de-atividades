@@ -1,0 +1,240 @@
+* {
+    margin: 0; 
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #F7F9FC;
+    color: #374151;
+}
+
+.container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.card {
+    background: #FFFFFF;
+    width: 100%;
+    max-width: 450px;
+    padding: 35px;
+    border-radius: 14px;
+    box-shadow: 0 4px 15px rgba(79, 124, 172, 0.12);
+}
+
+.card h1 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.card .subtitle {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #666;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #D5DCE5;
+    border-radius: 8px;
+    font-size: 16px;
+    color: #374151;
+    background: #FFFFFF;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #4F7CAC;
+    box-shadow: 0 0 0 3px rgba(79, 124, 172, 0.12);
+}
+
+.btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    background: #4F7CAC;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: #3F6688;
+}
+
+.btn-secondary {
+    background: #F4C95D;
+    margin-top: 10px;
+}
+
+.btn-secondary:hover {
+    background: #E8B83F;
+}
+
+.register-text {
+    text-align: center;
+    margin: 20px 0 10px;
+    color: #666;
+}
+
+.message {
+    margin-top: 15px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.principal-card {
+    max-width: 800px;
+}
+
+.top-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.top-buttons .btn {
+    flex: 1;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 25px 0;
+}
+
+.atividade {
+    background: #FFFFFF;
+    border: 1px solid #D5DCE5;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 3px 10px rgba(79, 124, 172, 0.08);
+}
+
+.atividade h3 {
+    margin-bottom: 10px;
+    color: #374151;
+    font-size: 20px;
+}
+
+.atividade p {
+    margin-bottom: 8px;
+    color: #6B7280;
+}
+
+.atividade-acoes {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.atividade-acoes .btn {
+    font-size: 14px;
+    padding: 10px;
+}
+
+.atividade-acoes .btn:first-child {
+    background: #4F7CAC;
+}
+
+.atividade-acoes .btn:nth-child(2) {
+    background: #6BBF8A;
+}
+
+.atividade-acoes .btn.btn-secondary {
+    background: #F4C95D;
+    color: #374151;
+}
+
+
+.atividade.atrasada {
+    border: 2px solid #E57373;
+    background: #FFF5F5;
+}
+
+.atrasada-texto {
+    color: #E57373;
+    font-weight: bold;
+}
+
+.atividade.concluida {
+    border: 2px solid #6BBF8A;
+    background: #F2FBF5;
+    opacity: 0.85;
+}
+
+.status {
+    font-weight: bold;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+
+    justify-content: center;
+    align-items: center;
+
+    padding: 20px;
+}
+
+.modal-content {
+    background: white;
+    width: 100%;
+    max-width: 500px;
+
+    padding: 30px;
+    border-radius: 12px;
+}
+
+.modal-content h2 {
+    margin-bottom: 20px;
+}
+
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #D5DCE5;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #374151;
+    background: #FFFFFF;
+    resize: vertical;
+}
+
+@media (max-width: 600px) {
+
+    .principal-card {
+        padding: 20px;
+    }
+
+    .top-buttons {
+        flex-direction: column;
+    }
+
+    .atividade-acoes {
+        flex-direction: column;
+    }
+
+}

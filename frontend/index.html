@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Atividades - Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="container">
+        <div class="card">
+            <h1>Gestor de Atividades</h1>
+            <p class="subtitle">Faça login para continuar</p>
+            <form id="loginForm">
+            <div class="form-group">
+                <label for="login">Login</label>
+                <input type="text" id="login" name="login" placeholder="Digite seu login" required>
+            </div>
+            <div class="form-group">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required>
+            </div> 
+            <button type="submit" class="btn">Entrar</button>
+            </form>
+            <p class="register-text">Ainda não possui uma conta?</p>
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='cadastro.html'">
+                Criar cadastro
+            </button>
+            <p id="loginMessage" class="message"></p>
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>

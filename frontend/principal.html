@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Atividades - Gestor de Atividades</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<body>
+
+    <main class="container">
+
+        <div class="card principal-card">
+
+            <h1>
+                Minhas Atividades
+            </h1>
+
+            <p class="subtitle">
+                Gerencie suas atividades
+            </p>
+
+            <button
+                type="button"
+                class="btn"
+                id="btnNovaAtividade"
+            >
+                Nova atividade
+            </button>
+
+            <div class="top-buttons">
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    onclick="window.location.href='creditos.html'"
+                >
+                    Créditos
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    id="btnLogout"
+                >
+                    Sair
+                </button>
+
+            </div>
+
+            <hr>
+
+            <div id="listaAtividades">
+
+                <p class="message">
+                    Carregando atividades...
+                </p>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <div
+        id="atividadeModal"
+        class="modal"
+    >
+
+        <div class="modal-content">
+
+            <h2 id="modalTitulo">
+                Nova atividade
+            </h2>
+
+            <form id="atividadeForm">
+
+                <div class="form-group">
+
+                    <label for="titulo">
+                        Título
+                    </label>
+
+                    <input
+                        type="text"
+                        id="titulo"
+                        name="titulo"
+                        placeholder="Digite o título da atividade"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="descricao">
+                        Descrição
+                    </label>
+
+                    <textarea
+                        id="descricao"
+                        name="descricao"
+                        placeholder="Digite a descrição da atividade"
+                        rows="4"
+                        required
+                    ></textarea>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="dataConclusao">
+                        Data de conclusão
+                    </label>
+
+                    <input
+                        type="date"
+                        id="dataConclusao"
+                        name="dataConclusao"
+                        required
+                    >
+
+                </div>
+
+                <button
+                    type="submit"
+                    class="btn"
+                >
+                    Salvar atividade
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    id="btnFecharModal"
+                >
+                    Cancelar
+                </button>
+
+            </form>
+
+            <p
+                id="atividadeMessage"
+                class="message"
+            ></p>
+
+        </div>
+
+    </div>
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
