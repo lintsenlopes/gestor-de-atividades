@@ -1,7 +1,6 @@
 <?php
 function acao_cadastrar_usuario() {
     global $pdo;
-    //$dados = json_decode(file_get_contents("php://input"), true);
     $nome = $_POST["nome"];
     $sobrenome = $_POST["sobrenome"];
     $data_nascimento = $_POST["data_nascimento"];
