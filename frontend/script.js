@@ -1,288 +1,307 @@
-let atividades = [];
+const API_URL = "../backend/api.php";
 
-let atividadeEditando = null;
-
-
+let atividadesCache = [];
+let atividadeEditandoId = null;
 
 const modal = document.getElementById("atividadeModal");
-
 const btnNovaAtividade = document.getElementById("btnNovaAtividade");
-
 const btnFecharModal = document.getElementById("btnFecharModal");
-
 const atividadeForm = document.getElementById("atividadeForm");
-
 const listaAtividades = document.getElementById("listaAtividades");
-
 const modalTitulo = document.getElementById("modalTitulo");
+const atividadeMessage = document.getElementById("atividadeMessage");
+const loginForm = document.getElementById("loginForm");
+const cadastroForm = document.getElementById("cadastroForm");
 
+// ---------- Utilidades ----------
 
+function getToken() {
+  return localStorage.getItem("token");
+}
+
+function headerAutenticado() {
+  return { "Authorization": "Bearer " + getToken() };
+}
+
+function sair() {
+  localStorage.removeItem("token");
+  window.location.href = "index.html";
+}
+
+// Se o token expirou ou é inválido, volta pro login
+function sessaoExpirou(resposta) {
+  if (resposta.status === 401) {
+    sair();
+    return true;
+  }
+  return false;
+}
+
+function escapar(texto) {
+  const div = document.createElement("div");
+  div.textContent = texto ?? "";
+  return div.innerHTML;
+}
+
+function estaConcluida(atividade) {
+  return String(atividade.Status).toLowerCase() === "concluída";
+}
+
+function formatarData(data) {
+  if (!data) return "";
+  const partes = data.split(" ")[0].split("-");
+  return `${partes[2]}/${partes[1]}/${partes[0]}`;
+}
+
+function verificarAtraso(atividade) {
+  if (estaConcluida(atividade)) return false;
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  const dataConclusao = new Date(atividade.Data_Conclusao.replace(" ", "T"));
+  dataConclusao.setHours(0, 0, 0, 0);
+  return dataConclusao < hoje;
+}
+
+// ---------- Proteção de telas ----------
+
+if (listaAtividades && !getToken()) {
+  window.location.href = "index.html";
+}
+
+if (loginForm && getToken()) {
+  window.location.href = "principal.html";
+}
+
+// ---------- Modal ----------
 
 if (btnNovaAtividade) {
   btnNovaAtividade.addEventListener("click", function () {
-    atividadeEditando = null;
-
+    atividadeEditandoId = null;
     modalTitulo.textContent = "Nova atividade";
-
     atividadeForm.reset();
-
+    atividadeMessage.textContent = "";
     modal.style.display = "flex";
   });
 }
 
-
-
 if (btnFecharModal) {
   btnFecharModal.addEventListener("click", function () {
     modal.style.display = "none";
-
     atividadeForm.reset();
-
-    atividadeEditando = null;
+    atividadeEditandoId = null;
   });
 }
 
-
+// ---------- Criar ou editar ----------
 
 if (atividadeForm) {
-  atividadeForm.addEventListener("submit", function (event) {
+  atividadeForm.addEventListener("submit", async function (event) {
     event.preventDefault();
 
-    const titulo = document.getElementById("titulo").value;
-
-    const descricao = document.getElementById("descricao").value;
-
+    const titulo = document.getElementById("titulo").value.trim();
+    const descricao = document.getElementById("descricao").value.trim();
     const dataConclusao = document.getElementById("dataConclusao").value;
 
-    
+    atividadeMessage.textContent = "";
 
-    if (atividadeEditando !== null) {
-      atividades[atividadeEditando].titulo = titulo;
+    try {
+      let resposta;
 
-      atividades[atividadeEditando].descricao = descricao;
+      if (atividadeEditandoId !== null) {
+        const original = atividadesCache.find(a => a.Id == atividadeEditandoId);
 
-      atividades[atividadeEditando].dataConclusao = dataConclusao;
+        const params = new URLSearchParams();
+        params.append("id", atividadeEditandoId);
+        params.append("titulo", titulo);
+        params.append("descricao", descricao);
+        params.append("data_conclusao", dataConclusao);
+        params.append("status", original ? original.Status : "Em aberto");
+
+        resposta = await fetch(`${API_URL}?rota=atividades`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            ...headerAutenticado()
+          },
+          body: params
+        });
+      } else {
+        const formData = new FormData();
+        formData.append("titulo", titulo);
+        formData.append("descricao", descricao);
+        formData.append("data_conclusao", dataConclusao);
+
+        resposta = await fetch(`${API_URL}?rota=atividades`, {
+          method: "POST",
+          headers: headerAutenticado(),
+          body: formData
+        });
+      }
+
+      if (sessaoExpirou(resposta)) return;
+
+      const dados = await resposta.json();
+
+      if (!resposta.ok || dados.sucesso !== true) {
+        atividadeMessage.textContent = dados.mensagem || "Erro ao salvar atividade.";
+        return;
+      }
+
+      modal.style.display = "none";
+      atividadeForm.reset();
+      atividadeEditandoId = null;
+      await carregarAtividades();
+
+    } catch (erro) {
+      atividadeMessage.textContent = "Erro ao conectar com o servidor.";
+      console.error("Erro ao salvar atividade:", erro);
     }
-    else {
-      const novaAtividade = {
-        id: Date.now(),
-
-        titulo: titulo,
-
-        descricao: descricao,
-
-        dataCriacao: new Date().toISOString().split("T")[0],
-
-        dataConclusao: dataConclusao,
-
-        status: "aberta",
-      };
-
-      atividades.push(novaAtividade);
-    }
-
-    
-
-    mostrarAtividades();
-
-    
-
-    modal.style.display = "none";
-
-    atividadeForm.reset();
-
-    atividadeEditando = null;
   });
 }
 
+// ---------- Listar ----------
 
+async function carregarAtividades() {
+  try {
+    const resposta = await fetch(`${API_URL}?rota=atividades`, {
+      method: "GET",
+      headers: headerAutenticado()
+    });
+
+    if (sessaoExpirou(resposta)) return;
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok || dados.sucesso !== true) {
+      listaAtividades.innerHTML = `<p class="message">Não foi possível carregar as atividades.</p>`;
+      return;
+    }
+
+    atividadesCache = dados.atividades;
+    mostrarAtividades();
+
+  } catch (erro) {
+    listaAtividades.innerHTML = `<p class="message">Erro ao conectar com o servidor.</p>`;
+    console.error("Erro ao carregar atividades:", erro);
+  }
+}
 
 function mostrarAtividades() {
   listaAtividades.innerHTML = "";
 
-  
-
-  if (atividades.length === 0) {
-    listaAtividades.innerHTML = `
-            <p class="message">
-                Nenhuma atividade cadastrada.
-            </p>
-        `;
-
+  if (atividadesCache.length === 0) {
+    listaAtividades.innerHTML = `<p class="message">Nenhuma atividade cadastrada.</p>`;
     return;
   }
 
-  atividades.forEach(function (atividade, index) {
+  atividadesCache.forEach(function (atividade) {
+    const concluida = estaConcluida(atividade);
     const atrasada = verificarAtraso(atividade);
 
     const div = document.createElement("div");
-
     div.className = "atividade";
-
-    if (atrasada) {
-      div.classList.add("atrasada");
-    }
-
-    if (atividade.status === "concluida") {
-      div.classList.add("concluida");
-    }
+    if (atrasada) div.classList.add("atrasada");
+    if (concluida) div.classList.add("concluida");
 
     div.innerHTML = `
-
-            <h3>
-                ${atividade.titulo}
-            </h3>
-
-            <p>
-                ${atividade.descricao}
-            </p>
-
-            <p>
-                <strong>Data de criação:</strong>
-                ${formatarData(atividade.dataCriacao)}
-            </p>
-
-            <p>
-                <strong>Data de conclusão:</strong>
-                ${formatarData(atividade.dataConclusao)}
-            </p>
-
-            <p class="status">
-                <strong>Status:</strong>
-                ${atividade.status === "concluida" ? "Concluída" : "Em aberto"}
-            </p>
-
-            ${
-              atrasada
-                ? `
-                        <p class="atrasada-texto">
-                            ⚠ ATIVIDADE ATRASADA
-                        </p>
-                    `
-                : ""
-            }
-
-            <div class="atividade-acoes">
-
-                <button
-                    type="button"
-                    class="btn"
-                    onclick="editarAtividade(${index})"
-                >
-                    Editar
-                </button>
-
-                ${
-                  atividade.status !== "concluida"
-                    ? `
-                            <button
-                                type="button"
-                                class="btn"
-                                onclick="concluirAtividade(${index})"
-                            >
-                                Concluir
-                            </button>
-                        `
-                    : ""
-                }
-
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    onclick="excluirAtividade(${index})"
-                >
-                    Excluir
-                </button>
-
-            </div>
-
-        `;
+      <h3>${escapar(atividade.Titulo)}</h3>
+      <p>${escapar(atividade.Descricao)}</p>
+      <p><strong>Data de criação:</strong> ${formatarData(atividade.Data_Criacao)}</p>
+      <p><strong>Data de conclusão:</strong> ${formatarData(atividade.Data_Conclusao)}</p>
+      <p class="status"><strong>Status:</strong> ${concluida ? "Concluída" : "Em aberto"}</p>
+      ${atrasada ? `<p class="atrasada-texto">⚠ ATIVIDADE ATRASADA</p>` : ""}
+      <div class="atividade-acoes">
+        <button type="button" class="btn" onclick="editarAtividade(${atividade.Id})">Editar</button>
+        ${!concluida ? `<button type="button" class="btn" onclick="concluirAtividade(${atividade.Id})">Concluir</button>` : ""}
+        <button type="button" class="btn btn-secondary" onclick="excluirAtividade(${atividade.Id})">Excluir</button>
+      </div>
+    `;
 
     listaAtividades.appendChild(div);
   });
 }
 
+// ---------- Editar / Concluir / Excluir ----------
 
+function editarAtividade(id) {
+  const atividade = atividadesCache.find(a => a.Id == id);
+  if (!atividade) return;
 
-function verificarAtraso(atividade) {
-  if (atividade.status === "concluida") {
-    return false;
-  }
-
-  const hoje = new Date();
-
-  hoje.setHours(0, 0, 0, 0);
-
-  const dataConclusao = new Date(atividade.dataConclusao);
-
-  dataConclusao.setHours(0, 0, 0, 0);
-
-  return dataConclusao < hoje;
-}
-
-
-
-function editarAtividade(index) {
-  const atividade = atividades[index];
-
-  atividadeEditando = index;
-
+  atividadeEditandoId = id;
   modalTitulo.textContent = "Editar atividade";
-
-  document.getElementById("titulo").value = atividade.titulo;
-
-  document.getElementById("descricao").value = atividade.descricao;
-
-  document.getElementById("dataConclusao").value = atividade.dataConclusao;
-
+  atividadeMessage.textContent = "";
+  document.getElementById("titulo").value = atividade.Titulo;
+  document.getElementById("descricao").value = atividade.Descricao;
+  document.getElementById("dataConclusao").value = atividade.Data_Conclusao.split(" ")[0];
   modal.style.display = "flex";
 }
 
+async function concluirAtividade(id) {
+  try {
+    const formData = new FormData();
+    formData.append("id", id);
 
+    const resposta = await fetch(`${API_URL}?rota=concluir`, {
+      method: "POST",
+      headers: headerAutenticado(),
+      body: formData
+    });
 
-function concluirAtividade(index) {
-  atividades[index].status = "concluida";
+    if (sessaoExpirou(resposta)) return;
 
-  mostrarAtividades();
-}
+    const dados = await resposta.json();
 
+    if (!resposta.ok || dados.sucesso !== true) {
+      alert(dados.mensagem || "Erro ao concluir atividade.");
+      return;
+    }
 
+    await carregarAtividades();
 
-function excluirAtividade(index) {
-  const confirmar = confirm("Deseja realmente excluir esta atividade?");
-
-  if (!confirmar) {
-    return;
+  } catch (erro) {
+    alert("Erro ao conectar com o servidor.");
+    console.error("Erro ao concluir atividade:", erro);
   }
-
-  atividades.splice(index, 1);
-
-  mostrarAtividades();
 }
 
+async function excluirAtividade(id) {
+  if (!confirm("Deseja realmente excluir esta atividade?")) return;
 
+  try {
+    const resposta = await fetch(`${API_URL}?rota=atividades&id=${id}`, {
+      method: "DELETE",
+      headers: headerAutenticado()
+    });
 
-function formatarData(data) {
-  if (!data) {
-    return "";
+    if (sessaoExpirou(resposta)) return;
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok || dados.sucesso !== true) {
+      alert(dados.mensagem || "Erro ao excluir atividade.");
+      return;
+    }
+
+    await carregarAtividades();
+
+  } catch (erro) {
+    alert("Erro ao conectar com o servidor.");
+    console.error("Erro ao excluir atividade:", erro);
   }
-
-  const partes = data.split("-");
-
-  return `${partes[2]}/${partes[1]}/${partes[0]}`;
 }
-
-
 
 if (listaAtividades) {
-  mostrarAtividades();
+  carregarAtividades();
 }
 
+// ---------- Logout ----------
 
+const btnLogout = document.getElementById("btnLogout");
+if (btnLogout) {
+  btnLogout.addEventListener("click", sair);
+}
 
-
-
-const loginForm = document.getElementById("loginForm");
+// ---------- Login ----------
 
 if (loginForm) {
   loginForm.addEventListener("submit", async function (event) {
@@ -303,33 +322,28 @@ if (loginForm) {
     botaoEntrar.disabled = true;
     botaoEntrar.textContent = "Entrando...";
 
+    const formData = new FormData();
+    formData.append("login", login);
+    formData.append("senha", senha);
+
     try {
-      const resposta = await fetch("php/login.php", {
+      const resposta = await fetch(`${API_URL}?rota=login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          login: login,
-          senha: senha
-        })
+        body: formData
       });
 
       const dados = await resposta.json();
 
       if (!resposta.ok || dados.sucesso !== true) {
-        loginMessage.textContent =
-          dados.mensagem || "Usuário ou senha incorretos.";
+        loginMessage.textContent = dados.mensagem || "Usuário ou senha incorretos.";
         return;
       }
 
-      loginMessage.textContent = dados.mensagem;
-
+      localStorage.setItem("token", dados.token);
       window.location.href = "principal.html";
 
     } catch (erro) {
-      loginMessage.textContent =
-        "Erro ao conectar com o servidor. Tente novamente.";
+      loginMessage.textContent = "Erro ao conectar com o servidor. Tente novamente.";
       console.error("Erro no login:", erro);
 
     } finally {
@@ -337,12 +351,9 @@ if (loginForm) {
       botaoEntrar.textContent = "Entrar";
     }
   });
-} 
+}
 
-
-
-
-const cadastroForm = document.getElementById("cadastroForm");
+// ---------- Cadastro ----------
 
 if (cadastroForm) {
   cadastroForm.addEventListener("submit", async function (event) {
@@ -360,14 +371,7 @@ if (cadastroForm) {
 
     cadastroMessage.textContent = "";
 
-    if (
-      nome === "" ||
-      sobrenome === "" ||
-      dataNascimento === "" ||
-      login === "" ||
-      senha.trim() === "" ||
-      confirmarSenha.trim() === ""
-    ) {
+    if (nome === "" || sobrenome === "" || dataNascimento === "" || login === "" || senha.trim() === "" || confirmarSenha.trim() === "") {
       cadastroMessage.textContent = "Preencha todos os campos.";
       return;
     }
@@ -377,46 +381,39 @@ if (cadastroForm) {
       return;
     }
 
-    if (senha.length < 6) {
-      cadastroMessage.textContent =
-        "A senha deve ter pelo menos 6 caracteres.";
+    if (senha.length < 6 || senha.length > 64) {
+      cadastroMessage.textContent = "A senha deve ter entre 6 e 64 caracteres.";
       return;
     }
 
     botaoCadastrar.disabled = true;
     botaoCadastrar.textContent = "Cadastrando...";
 
+    const formData = new FormData();
+    formData.append("nome", nome);
+    formData.append("sobrenome", sobrenome);
+    formData.append("data_nascimento", dataNascimento);
+    formData.append("login", login);
+    formData.append("senha", senha);
+
     try {
-      const resposta = await fetch("php/cadastrar.php", {
+      const resposta = await fetch(`${API_URL}?rota=cadastrar`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          nome: nome,
-          sobrenome: sobrenome,
-          data_nascimento: dataNascimento,
-          login: login,
-          senha: senha
-        })
+        body: formData
       });
 
       const dados = await resposta.json();
 
       if (!resposta.ok || dados.sucesso !== true) {
-        cadastroMessage.textContent =
-          dados.mensagem || "Não foi possível realizar o cadastro.";
+        cadastroMessage.textContent = dados.mensagem || "Não foi possível realizar o cadastro.";
         return;
       }
 
-      cadastroMessage.textContent =
-        dados.mensagem || "Usuário cadastrado com sucesso.";
-
+      cadastroMessage.textContent = dados.mensagem || "Usuário cadastrado com sucesso.";
       cadastroForm.reset();
 
     } catch (erro) {
-      cadastroMessage.textContent =
-        "Erro ao conectar com o servidor. Tente novamente.";
+      cadastroMessage.textContent = "Erro ao conectar com o servidor. Tente novamente.";
       console.error("Erro no cadastro:", erro);
 
     } finally {
@@ -424,4 +421,4 @@ if (cadastroForm) {
       botaoCadastrar.textContent = "Cadastrar";
     }
   });
-} 
+}

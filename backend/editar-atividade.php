@@ -2,13 +2,14 @@
 function acao_editar_atividade() {
     global $pdo;
     require_once "autenticacao.php";
-    $dados = json_decode(file_get_contents("php://input"), true);
     $usuario_id = exigir_autenticacao();
-    $id = $dados["id"];
-    $titulo = $dados["titulo"];
-    $descricao = $dados["descricao"];
-    $data_conclusao = $dados["data_conclusao"];
-    $status = $dados["status"];
+
+    parse_str(file_get_contents("php://input"), $dados);
+    $id = $dados["id"] ?? NULL;
+    $titulo = $dados["titulo"] ?? NULL;
+    $descricao = $dados["descricao"] ?? NULL;
+    $data_conclusao = $dados["data_conclusao"] ?? NULL;
+    $status = $dados["status"]?? NULL;
 
     $stmt = $pdo->prepare("SELECT Id FROM atividades WHERE Id = :id AND Usuario_Id = :usuario_id");
     $stmt->execute([":id" => $id, ":usuario_id" => $usuario_id]);

@@ -10,7 +10,7 @@ require_once "deletar-atividade.php";
 require_once "concluir-atividade.php";
 
 $metodo = $_SERVER['REQUEST_METHOD'];
-$rota = $_GET['rota'] ?? '';
+$rota = $_GET["rota"] ?? '';
 
 if ($metodo === 'POST' && $rota === 'login') {
     acao_login();

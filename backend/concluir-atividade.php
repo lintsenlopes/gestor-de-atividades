@@ -2,9 +2,8 @@
 function acao_concluir_atividade() {
     global $pdo;
     require_once "autenticacao.php";
-    $dados = json_decode(file_get_contents("php://input"), true);
     $usuario_id = exigir_autenticacao();
-    $id = $dados["id"];
+    $id = $_POST["id"] ?? null;
 
     $stmt = $pdo->prepare("SELECT Id FROM atividades WHERE Id = :id AND Usuario_Id = :usuario_id");
     $stmt->execute([":id" => $id, ":usuario_id" => $usuario_id]);

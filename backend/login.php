@@ -2,9 +2,8 @@
 function acao_login() {
     global $pdo;
     require_once "jwt.php";
-    $dados = json_decode(file_get_contents("php://input"), true);
-    $login = $dados["login"] ?? null;
-    $senha = $dados["senha"] ?? null;
+    $login = $_POST["login"] ?? null;
+    $senha = $_POST["senha"] ?? null;
 
     if (!$login || !$senha) {
         http_response_code(400);
